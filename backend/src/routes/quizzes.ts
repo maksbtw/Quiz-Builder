@@ -25,7 +25,27 @@ router.get('/:id', async (req: Request, res: Response) => {
 })
 
 // POST /quizzes
+router.post('/', async (req: Request, res: Response) =>
+{
+    const { title, questions } = req.body
 
+    const quiz = await prisma.quiz.create({
+        data: {
+            title,
+            questions: {
+                create: questions.map((q: any) => ({
+                    text: q.text,
+                    type: q.type,
+                    options: q.options ? JSON.stringify(q.options) : null,
+                    correctAnswer: q.correctAnswer ? JSON.stringify(q.correctAnswer) : null,
+                })),
+            },
+        },
+        include: { questions: true },
+    })
+
+    res.status(201).json(quiz)
+})
 
 // DELETE /quizzes/:id
 router.delete('/:id', async (req: Request, res: Response) => {
