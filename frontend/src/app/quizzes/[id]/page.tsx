@@ -8,6 +8,8 @@ import { Quiz, getQuiz } from '@/services/api'
 export default function QuizDetailPage() {
   const { id } = useParams()
   const [quiz, setQuiz] = useState<Quiz | null>(null)
+  const [boolAnswers, setBoolAnswers] = useState<Record<number, boolean>>({})
+  const [checkAnswers, setCheckAnswers] = useState<Record<number, string[]>>({})
 
   useEffect(() => {
     getQuiz(Number(id)).then(setQuiz)
@@ -16,12 +18,12 @@ export default function QuizDetailPage() {
   if (!quiz) return <p className="p-6">Loading...</p>
 
   return (
-    <main className="max-w-2xl mx-auto p-6">
-      <Link href="/quizzes" className="text-blue-600 hover:underline">
+    <main className="w-[50vw] mx-auto py-10">
+      <Link href="/quizzes" className="text-danger hover:underline">
         Back to quizzes
       </Link>
 
-      <h1 className="text-2xl font-bold">{quiz.title}</h1>
+      <h1 className="text-2xl font-bold text-center py-10">{quiz.title}</h1>
 
       <ul className="space-y-4">
         {quiz.questions?.map((q, index) => (
@@ -31,9 +33,19 @@ export default function QuizDetailPage() {
             </p>
 
             {q.type === 'boolean' && (
-              <div className="flex gap-4 text-smtext-gray-600">
-                <span>True</span>
-                <span>False</span>
+              <div className="flex gap-4">
+                {[true, false].map(val => (
+                  <label key={String(val)} className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="radio"
+                      name={`bool-${q.id}`}
+                      checked={boolAnswers[q.id] === val}
+                      onChange={() => setBoolAnswers(prev => ({ ...prev, [q.id]:
+                        val }))}
+                    />
+                    {val ? 'True' : 'False'}
+                  </label>
+                ))}
               </div>
             )}
 
@@ -45,9 +57,25 @@ export default function QuizDetailPage() {
             )}
 
             {q.type === 'checkbox' && (
-              <ul className="text-sm text-gray-600 space-y-1">
-                {JSON.parse(q.options || '[]').map((opt: string, i: number) => (
-                  <li key={i}>☐ {opt}</li>
+              <ul className="space-y-1">
+                {JSON.parse(q.options || '[]').map((opt: string) => (
+                  <li key={opt}>
+                    <label className="flex items-center gap-2 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={checkAnswers[q.id]?.includes(opt) ?? false}
+                        onChange={() =>
+                          setCheckAnswers(prev => ({
+                            ...prev,
+                            [q.id]: (prev[q.id] ?? []).includes(opt)
+                              ? (prev[q.id] ?? []).filter(o => o !== opt)
+                              : [...(prev[q.id] ?? []), opt],
+                          }))
+                        }
+                      />
+                      {opt}
+                    </label>
+                  </li>
                 ))}
               </ul>
             )}

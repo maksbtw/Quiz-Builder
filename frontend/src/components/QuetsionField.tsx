@@ -40,7 +40,7 @@ export default function QuestionField({
     })
 
   return (
-    <div className="border">
+    <div className="flex flex-col gap-2">
       <div className="flex justify-between items-center">
         <span className="font-medium text-gray-500">Question {index + 1}</span>
         <button
@@ -58,7 +58,7 @@ export default function QuestionField({
         onChange={(e: ChangeEvent<HTMLInputElement>) =>
           update({ text: e.target.value })
         }
-        className="w-full border"
+        className="px-6 py-2 rounded border-2 border-border"
       />
 
       <select
@@ -69,7 +69,7 @@ export default function QuestionField({
             options: [],
           })
         }
-        className="border"
+        className="px-6 py-2 rounded border-2 border-border"
       >
         <option value="boolean">Boolean (True/False)</option>
         <option value="input">Input (Short answer)</option>
@@ -85,17 +85,17 @@ export default function QuestionField({
                 placeholder={`Option ${optIndex + 1}`}
                 value={opt}
                 onChange={(e) => handleOptionChange(optIndex, e.target.value)}
-                className="flex-1 border rounded"
+                className="ml-3 px-3 py-1 rounded border-2 border-border"
               />
               <button
                 onClick={() => removeOption(optIndex)}
-                className="text-red-400 hover:text-red-600"
+                className="text-danger hover:text-danger-hover"
               >
                 ✕
               </button>
             </div>
           ))}
-          <button onClick={addOption} className="text-blue-600 hover:underline">
+          <button onClick={addOption} className="ml-3 cursor-pointer text-primary hover:text-primary-hover">
             Add option
           </button>
         </div>

@@ -17,12 +17,12 @@ export default function QuizzesPage() {
   }
 
   return (
-    <main className="max-w-2xl mx-auto p-6">
+    <main className="w-[50vw] mx-auto py-10">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold">Quizzes</h1>
         <Link
           href="/create"
-          className="bg-blue-600 text-white rounded hover:bg-blue-700"
+          className="bg-primary text-surface rounded hover:bg-primary-hover py-2 px-6"
         >
           + Create Quiz
         </Link>
@@ -32,17 +32,22 @@ export default function QuizzesPage() {
         {quizzes.map((quiz) => (
           <li
             key={quiz.id}
-            className="flex justify-between items-center border gap-3"
+            className="flex items-center rounded text-surface h-25 bg-primary hover:bg-primary-hover"
           >
-            <Link href={`/quizzes/${quiz.id}`} className="hover:underline">
-              <span className="font-medium">{quiz.title}</span>
+            <Link
+              href={`/quizzes/${quiz.id}`}
+              className="flex flex-col w-full px-6 py-4"
+            >
+              <span className="text-xl font-bold hover:underline">
+                {quiz.title}
+              </span>
+              <span>
+                {quiz._count?.questions} questions
+              </span>
             </Link>
-            <span className=" text-gray-500 ml-2">
-              {quiz._count?.questions} questions
-            </span>
             <button
               onClick={() => handleDelete(quiz.id)}
-              className="text-red-500 hover:text-red-700"
+              className="h-full px-6 font-bold rounded bg-danger cursor-pointer hover:bg-danger-hover"
             >
               Delete
             </button>

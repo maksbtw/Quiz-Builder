@@ -1,9 +1,10 @@
 'use client'
 
-import { useState } from 'react'
-import { useRouter } from 'next/navigation'
-import { createQuiz } from '@/services/api'
-import QuestionField, { QuestionFormData } from '@/components/QuetsionField'
+import {useState} from 'react'
+import {useRouter} from 'next/navigation'
+import {createQuiz} from '@/services/api'
+import QuestionField, {QuestionFormData} from '@/components/QuetsionField'
+import Link from "next/link";
 
 const emptyQuestion = (): QuestionFormData => ({
   text: '',
@@ -17,6 +18,7 @@ export default function CreatePage() {
   const [questions, setQuestions] = useState<QuestionFormData[]>([
     emptyQuestion(),
   ])
+  const [error, setError] = useState<string | null>(null)
 
   const handleQuestionChange = (index: number, updated: QuestionFormData) => {
     setQuestions(questions.map((q, i) => (i === index ? updated : q)))
@@ -27,11 +29,38 @@ export default function CreatePage() {
   }
 
   const handleSubmit = async () => {
-    if (!title.trim() || questions.length === 0) return
+    setError(null)
+
+    if (!title.trim()) {
+      setError('Quiz title is required')
+      return
+    }
+
+    if (questions.length === 0) {
+      setError('Add at least one question')
+      return
+    }
+
+    for (const q of questions) {
+      if (!q.text.trim()) {
+        setError('All questions must have text')
+        return
+      }
+      if (q.type === 'checkbox') {
+        if (q.options.length < 2) {
+          setError('Checkbox questions must have at least 2 options')
+          return
+        }
+        if (q.options.some(opt => !opt.trim())) {
+          setError('All options must have text')
+          return
+        }
+      }
+    }
 
     await createQuiz({
       title,
-      questions: questions.map((q) => ({
+      questions: questions.map(q => ({
         text: q.text,
         type: q.type,
         options: q.type === 'checkbox' ? q.options : undefined,
@@ -42,18 +71,26 @@ export default function CreatePage() {
   }
 
   return (
-    <main className="max-w-xl">
-      <h1 className="text-xl font-bold">Create Quiz</h1>
+    <main className="w-[50vw] mx-auto py-10 flex flex-col">
+      <Link href="/quizzes" className="text-danger hover:underline">
+        Back to quizzes
+      </Link>
+
+      <h1 className="text-2xl font-bold text-center py-10">Create Quiz</h1>
+
+      {error && (
+        <p className="text-danger text-sm pb-5">{error}</p>
+      )}
 
       <input
         type="text"
         placeholder="Quiz title"
         value={title}
         onChange={(e) => setTitle(e.target.value)}
-        className="w-full border"
+        className="mx-5 px-6 py-2 rounded border-2 border-border"
       />
 
-      <div className="space-y-4">
+      <div className="flex flex-col gap-5 my-10">
         {questions.map((q, index) => (
           <QuestionField
             key={index}
@@ -67,14 +104,14 @@ export default function CreatePage() {
 
       <button
         onClick={() => setQuestions([...questions, emptyQuestion()])}
-        className="w-full border-2 border-dashed text-gray-500 hover:text-gray-700"
+        className="mb-2 px-6 py-2 rounded border-2 border-dotted border-border"
       >
         Add Question
       </button>
 
       <button
         onClick={handleSubmit}
-        className="w-full bg-blue-600 text-white hover:bg-blue-700"
+        className="bg-primary text-surface rounded hover:bg-primary-hover py-2 px-6"
       >
         Create Quiz
       </button>
